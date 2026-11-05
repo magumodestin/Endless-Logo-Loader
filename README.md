@@ -3,7 +3,8 @@
 A lightweight, endless loading animation built with pure HTML, CSS and a few lines of JavaScript. A logo pulses inside a spinning ring and keeps "loading" until the visitor presses **Stop loading** and then **Continue** to enter the site.
 
 No libraries, no build step. Just open `index.html`.
-
+   Live demo: https://magumodestin.github.io/Endless-Logo-Loader/
+   
 ## Features
 
 - Endless loop: the logo pulse, ring spin and animated dots repeat forever
