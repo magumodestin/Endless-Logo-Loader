@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Endless Logo Loader</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --accent: #4cc9f0;
+        --accent-2: #7b61ff;
+        --text: #e8eaf0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #fff;
+        color: #222;
+      }
+
+      /* ---------- Full-screen loader ---------- */
+      #loader {
+        position: fixed;
+        inset: 0;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        z-index: 9999;
+        transition:
+          opacity 0.6s ease,
+          visibility 0.6s ease;
+      }
+      #loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      /* ---------- Logo + spinning ring ---------- */
+      .logo-wrap {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        display: grid;
+        place-items: center;
+      }
+
+      .ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.08);
+        border-top-color: var(--accent);
+        border-right-color: var(--accent-2);
+        animation: spin 1.4s linear infinite;
+      }
+
+      .logo {
+        width: 72px;
+        height: 72px;
+        animation: pulse 1.8s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(0.9);
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+      }
+
+      /* ---------- Status text with animated dots ---------- */
+      .status {
+        font-size: 1rem;
+        letter-spacing: 0.04em;
+        min-height: 1.5em;
+      }
+      .dots span {
+        display: inline-block;
+        animation: blink 1.2s infinite;
+      }
+      .dots span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .dots span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes blink {
+        0%,
+        80%,
+        100% {
+          opacity: 0.2;
+        }
+        40% {
+          opacity: 1;
+        }
+      }
+
+      /* ---------- Stopped state: freeze everything ---------- */
+      #loader.stopped .ring,
+      #loader.stopped .logo,
+      #loader.stopped .dots span {
+        animation-play-state: paused;
+      }
+      #loader.stopped .dots {
+        display: none;
+      }
+
+      /* ---------- Buttons ---------- */
+      .actions {
+        display: flex;
+        gap: 12px;
+      }
+      button {
+        font: inherit;
+        padding: 10px 22px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+      button:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      button:active {
+        transform: scale(0.97);
+      }
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      #continueBtn {
+        display: none;
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #06222b;
+        font-weight: 600;
+      }
+      #continueBtn:hover {
+        background: #7ddaf5;
+      }
+
+      #loader.stopped #stopBtn {
+        display: none;
+      }
+      #loader.stopped #continueBtn {
+        display: inline-block;
+      }
+
+      /* ---------- Respect reduced-motion settings ---------- */
+      @media (prefers-reduced-motion: reduce) {
+        .ring,
+        .logo {
+          animation-duration: 4s;
+        }
+      }
+
+      /* ---------- Your real page ---------- */
+      main {
+        padding: 3rem;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loader" role="status" aria-live="polite">
+      <div class="logo-wrap">
+        <div class="ring"></div>
+
+        <!-- Placeholder logo: replace this <svg> with your own logo or an <img> -->
+        <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4cc9f0" />
+              <stop offset="1" stop-color="#7b61ff" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="url(#g)" />
+          <path
+            d="M36 28 v44 h30"
+            fill="none"
+            stroke="#fff"
+            stroke-width="10"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div class="status">
+        <span id="statusText">Loading</span
+        ><span class="dots"><span>.</span><span>.</span><span>.</span></span>
+      </div>
+
+      <div class="actions">
+        <button id="stopBtn" type="button">Stop loading</button>
+        <button id="continueBtn" type="button">Continue</button>
+      </div>
+    </div>
+
+    <main>
+      <h1>Welcome!</h1>
+      <p>
+        This is your real website content, revealed after you press Continue.
+      </p>
+    </main>
+
+    <script>
+      const loader = document.getElementById("loader");
+      const stopBtn = document.getElementById("stopBtn");
+      const continueBtn = document.getElementById("continueBtn");
+      const statusText = document.getElementById("statusText");
+
+      // Stop: freeze the animation and offer the Continue button
+      stopBtn.addEventListener("click", () => {
+        loader.classList.add("stopped");
+        statusText.textContent = "Loading stopped";
+        continueBtn.focus();
+      });
+
+      // Continue: fade the loader away and show the site
+      continueBtn.addEventListener("click", () => {
+        loader.classList.add("hidden");
+        setTimeout(() => loader.remove(), 700); // remove after the fade finishes
+      });
+    </script>
+  </body>
+</html>
